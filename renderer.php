@@ -30,6 +30,7 @@ class mod_ciscospark_renderer extends plugin_renderer_base {
 
     /**
      * Display room link
+     *
      * @param stdClass|int $group or 0 to not display the group
      * @param room $room
      * @param array $capabilities
@@ -45,23 +46,24 @@ class mod_ciscospark_renderer extends plugin_renderer_base {
         $output .= '<div class="room ' . $class . '">';
         if ($group) {
             $output .= '<h4>' . $group->name . '</h4>';
-        }
-        else {
+        } else {
             $group     = new stdClass();
             $group->id = 0;
         }
 
         //add iframe
         $iframe_url = $CFG->wwwroot . '/mod/ciscospark/widget.php?token=' . $token->access_token . '&room=' . $room->roomid;
-        $output .= '<iframe src="' . $iframe_url . '"></iframe>';
+        $output     .= '<iframe src="' . $iframe_url . '"></iframe>';
 
-        $url = $CFG->wwwroot . '/mod/ciscospark/redirect.php?roomid=' . $room->id . '&groupid=' . $group->id;
-        $output .= '<div class="room-buttons"><a class="enter-room-link" href="' . $url . '" target="_blank">' . get_string('enterroom', 'ciscospark') . '</a>';
+        $url    = $CFG->wwwroot . '/mod/ciscospark/redirect.php?roomid=' . $room->id . '&groupid=' . $group->id;
+        $output .= '<div class="room-buttons"><a class="enter-room-link" href="' . $url . '" target="_blank">' .
+                   get_string('enterroom', 'ciscospark') . '</a>';
 
         //buttons 
         if ($group->id != 0 && isset($capabilities['hiderooms']) && $capabilities['hiderooms']) {
             $output .= '<div class="room-actions">';
-            $output .= '<a href="" class="hide-button" data-room="' . $room->id . '" title="' . get_string('showhide', 'ciscospark') . '"></a>';
+            $output .= '<a href="" class="hide-button" data-room="' . $room->id . '" title="' .
+                       get_string('showhide', 'ciscospark') . '"></a>';
             $output .= '</div>';
         }
         $output .= '</div>';
@@ -72,6 +74,7 @@ class mod_ciscospark_renderer extends plugin_renderer_base {
 
     /**
      * Display a list a group rooms for a given ciscospark instance
+     *
      * @param ciscospark $ciscospark
      * @param stdClass $groups
      * @param array $capabilities

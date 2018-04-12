@@ -31,60 +31,60 @@ class mod_ciscospark_observer {
 
     /**
      * Sync rooms on course module update
+     *
      * @param \core\event\course_module_updated $event
      */
     public static function course_module_updated(\core\event\course_module_updated $event) {
         global $CFG;
-        
+
         require_once $CFG->dirroot . '/mod/ciscospark/lib.php';
-        
+
         $cm = get_coursemodule_from_id('', $event->objectid);
-        
-        if ($cm->modname == 'ciscospark') {            
+
+        if ($cm->modname == 'ciscospark') {
             if (!$ciscospark = mod_ciscospark\ciscospark::get_by_id($cm->instance)) {
                 return;
             }
             mod_ciscospark\spark_controller::syncRooms($cm);
-            
+
             $ciscospark->update_rooms_names();
         }
     }
-    
+
     /**
      * Sync rooms when course name is updated
-     * @global type $CFG
+     *
      * @param \core\event\course_updated $event
      */
     public static function course_updated(\core\event\course_updated $event) {
         global $CFG;
-        
+
         require_once $CFG->dirroot . '/mod/ciscospark/lib.php';
-        
+
         $course = get_course($event->objectid);
-        
+
         if ($team = mod_ciscospark\team::get_by_course($course->id)) {
             $team->update_name();
             $team->update_rooms_names();
         }
     }
-    
-     /**
+
+    /**
      * Sync rooms when group name is updated
-     * @global type $CFG
+     *
      * @param \core\event\group_updated $event
      */
     public static function group_updated(\core\event\group_updated $event) {
         global $CFG;
-        
+
         require_once $CFG->dirroot . '/mod/ciscospark/lib.php';
         require_once $CFG->libdir . '/grouplib.php';
-        
+
         $group = groups_get_group($event->objectid);
-        
+
         if ($team = mod_ciscospark\team::get_by_course($group->courseid)) {
             $team->update_rooms_names();
         }
     }
-    
-    
+
 }

@@ -44,10 +44,10 @@ class cron_task extends \core\task\scheduled_task {
     public function execute() {
         global $CFG;
         require_once($CFG->dirroot . '/mod/ciscospark/lib.php');
-        
+
         //refresh tokens
         ciscospark_refresh_all_tokens();
-        
+
     }
 
 }

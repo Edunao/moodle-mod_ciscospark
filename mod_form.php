@@ -30,9 +30,13 @@ require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
 class mod_ciscospark_mod_form extends moodleform_mod {
 
+    /**
+     * Cisco spark instance parameters
+     * @throws coding_exception
+     */
     function definition() {
         global $CFG;
-        $mform = & $this->_form;
+        $mform = &$this->_form;
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
         $mform->addElement('text', 'name', get_string('name'), array('size' => '48'));
@@ -48,7 +52,7 @@ class mod_ciscospark_mod_form extends moodleform_mod {
         $attributes         = $element->getAttributes();
         $attributes['rows'] = 5;
         $element->setAttributes($attributes);
-        
+
         $mform->addElement('advcheckbox', 'usegroups', get_string('use_groups', 'ciscospark'));
 
         //-------------------------------------------------------

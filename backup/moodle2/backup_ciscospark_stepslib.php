@@ -36,7 +36,8 @@ class backup_ciscospark_activity_structure_step extends backup_activity_structur
 
         // Define each element separated
         $ciscospark = new backup_nested_element('ciscospark', array('id'), array(
-            'name', 'intro', 'introformat', 'usegroups', 'timemodified'));
+                'name', 'intro', 'introformat', 'usegroups', 'timemodified'
+        ));
 
         // Define sources
         $ciscospark->set_source_table('ciscospark', array('id' => backup::VAR_ACTIVITYID));

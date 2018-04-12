@@ -27,6 +27,11 @@
 
 namespace mod_ciscospark\task;
 
+/**
+ * Class sync_rooms
+ *
+ * @package mod_ciscospark\task
+ */
 class sync_rooms extends \core\task\scheduled_task {
 
     /**
@@ -40,14 +45,16 @@ class sync_rooms extends \core\task\scheduled_task {
 
     /**
      * Run ciscospark cron.
+     * Sync all cm rooms
      */
     public function execute() {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/mod/ciscospark/lib.php');
-        
+
         //sync all rooms
-        $instances = $DB->get_records_sql('SELECT cm.* FROM {course_modules} cm, {modules} m WHERE cm.module = m.id AND m.name = ?', array('ciscospark'));
-        
+        $instances = $DB->get_records_sql('SELECT cm.* FROM {course_modules} cm, {modules} m WHERE cm.module = m.id AND m.name = ?',
+                array('ciscospark'));
+
         foreach ($instances as $instance) {
             $cm = get_coursemodule_from_id('ciscospark', $instance->id);
             \mod_ciscospark\spark_controller::syncRooms($cm);

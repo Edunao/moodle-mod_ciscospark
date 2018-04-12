@@ -33,5 +33,5 @@ $state = required_param('state', PARAM_INT); //cmid
 //manage authentification
 $spark = new \mod_ciscospark\spark($state);
 
-//redirect user to the course module after authentification
+//redirect user to the course module after the cisco spark authentification
 redirect($CFG->wwwroot . '/mod/ciscospark/view.php?id=' . $state);

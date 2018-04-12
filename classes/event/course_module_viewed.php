@@ -29,6 +29,11 @@ namespace mod_ciscospark\event;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class course_module_viewed
+ *
+ * @package mod_ciscospark\event
+ */
 class course_module_viewed extends \core\event\course_module_viewed {
 
     /**

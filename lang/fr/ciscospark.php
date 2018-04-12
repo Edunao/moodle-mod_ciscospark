@@ -25,7 +25,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['modulename']       = 'Cisco Spark';
-$string['modulename_help']  = 'Le module d\'activité Cisco Spark permet de disposer d’espaces collaboratifs de communication sur Spark.
+$string['modulename_help']
+                            = 'Le module d\'activité Cisco Spark permet de disposer d’espaces collaboratifs de communication sur Spark.
 Ces espaces collaboratifs sont accessibles dans ou en dehors de Moodle au travers de clients Mobile, MAC ou PC. Ils permettent de pouvoir continuer à échanger, travailler et communiquer partout, tout le temps, depuis n\'importe quel type de terminal. 
 
 Cette activité peut regrouper tous les participants d\'un cours dans un seul espace d\'échanges ou dans des espaces séparés pour chaque groupe du cours. 

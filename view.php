@@ -54,6 +54,10 @@ $coursecontext = context_course::instance($course->id);
 
 require_capability('mod/ciscospark:view', $context);
 
+if (!ciscospark_plugin_is_configured()) {
+    print_error('Ciscospark plugin is not well configured');
+}
+
 //Check if the bot is well configured
 if (!ciscospark_get_bot_email() || !ciscospark_get_bot_access_token()) {
     print_error('You must configure a bot to create a room');
@@ -62,13 +66,14 @@ if (!ciscospark_get_bot_email() || !ciscospark_get_bot_access_token()) {
 //check token
 $spark = new \mod_ciscospark\spark($cmid);
 
+// synchronize cm rooms
 mod_ciscospark\spark_controller::syncRooms($cm);
 
-//GET CAPABILITIES
+// get capabilities
 $capabilities = array(
-    'accessallgroups' => has_capability('moodle/site:accessallgroups', $coursecontext),
-    'viewhiddenrooms' => has_capability('mod/ciscospark:viewhiddenrooms', $context),
-    'hiderooms'       => has_capability('mod/ciscospark:hiderooms', $context),
+        'accessallgroups' => has_capability('moodle/site:accessallgroups', $coursecontext),
+        'viewhiddenrooms' => has_capability('mod/ciscospark:viewhiddenrooms', $context),
+        'hiderooms'       => has_capability('mod/ciscospark:hiderooms', $context),
 );
 
 // Completion and trigger events.
@@ -101,7 +106,7 @@ switch ($ciscospark->usegroups) {
 
     //no groups
     case 0 :
-	$room = $ciscospark->get_room(0);
+        $room = $ciscospark->get_room(0);
         echo $renderer->display_room_link(0, $room, $capabilities);
         break;
 

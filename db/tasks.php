@@ -26,24 +26,26 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-//run cron every days at 4am
+
 $tasks = array(
-    array(
-        'classname' => 'mod_ciscospark\task\cron_task',
-        'blocking'  => 0,
-        'minute'    => '*',
-        'hour'      => '4',
-        'day'       => '*',
-        'month'     => '*',
-        'dayofweek' => '*'
-    ),
-    array(
-        'classname' => 'mod_ciscospark\task\sync_rooms',
-        'blocking'  => 0,
-        'minute'    => '*',
-        'hour'      => '*/1', //every hours
-        'day'       => '*',
-        'month'     => '*',
-        'dayofweek' => '*'
-    )
+        //run cron every days at 4am
+        array(
+                'classname' => 'mod_ciscospark\task\cron_task',
+                'blocking'  => 0,
+                'minute'    => '*',
+                'hour'      => '4',
+                'day'       => '*',
+                'month'     => '*',
+                'dayofweek' => '*'
+        ),
+        //run cron every hours
+        array(
+                'classname' => 'mod_ciscospark\task\sync_rooms',
+                'blocking'  => 0,
+                'minute'    => '*',
+                'hour'      => '*/1', //every hours
+                'day'       => '*',
+                'month'     => '*',
+                'dayofweek' => '*'
+        )
 );

@@ -27,8 +27,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $logs = array(
-    array('module'=>'ciscospark', 'action'=>'view', 'mtable'=>'page', 'field'=>'name'),
-    array('module'=>'ciscospark', 'action'=>'view all', 'mtable'=>'page', 'field'=>'name'),
-    array('module'=>'ciscospark', 'action'=>'update', 'mtable'=>'page', 'field'=>'name'),
-    array('module'=>'ciscospark', 'action'=>'add', 'mtable'=>'page', 'field'=>'name'),
+        array('module' => 'ciscospark', 'action' => 'view', 'mtable' => 'page', 'field' => 'name'),
+        array('module' => 'ciscospark', 'action' => 'view all', 'mtable' => 'page', 'field' => 'name'),
+        array('module' => 'ciscospark', 'action' => 'update', 'mtable' => 'page', 'field' => 'name'),
+        array('module' => 'ciscospark', 'action' => 'add', 'mtable' => 'page', 'field' => 'name'),
 );

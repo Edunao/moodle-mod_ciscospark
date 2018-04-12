@@ -26,10 +26,15 @@
  */
 defined('MOODLE_INTERNAL') || die;
 
+// add plugins parameters
 if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_configtext('ciscospark/client_id', get_string('setting_clientid', 'ciscospark'), '', null, PARAM_RAW));
-    $settings->add(new admin_setting_configtext('ciscospark/client_secret', get_string('setting_clientsecret', 'ciscospark'), '', null, PARAM_RAW));
-    $settings->add(new admin_setting_configtext('ciscospark/bot_access_token', get_string('setting_bottoken', 'ciscospark'), '', null, PARAM_RAW));
-    $settings->add(new admin_setting_configtext('ciscospark/bot_email', get_string('setting_botemail', 'ciscospark'), '', null, PARAM_EMAIL));
+    $settings->add(new admin_setting_configtext('ciscospark/client_id', get_string('setting_clientid', 'ciscospark'), '', null,
+            PARAM_RAW));
+    $settings->add(new admin_setting_configtext('ciscospark/client_secret', get_string('setting_clientsecret', 'ciscospark'), '',
+            null, PARAM_RAW));
+    $settings->add(new admin_setting_configtext('ciscospark/bot_access_token', get_string('setting_bottoken', 'ciscospark'), '',
+            null, PARAM_RAW));
+    $settings->add(new admin_setting_configtext('ciscospark/bot_email', get_string('setting_botemail', 'ciscospark'), '', null,
+            PARAM_EMAIL));
 }
 

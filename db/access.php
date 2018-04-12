@@ -28,42 +28,42 @@
 defined('MOODLE_INTERNAL') || die;
 
 $capabilities = array(
-    'mod/ciscospark:view' => array(
-        'captype'      => 'read',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes'   => array(
-            'guest' => CAP_ALLOW,
-            'user'  => CAP_ALLOW,
-        )
-    ),
-    'mod/ciscospark:addinstance' => array(
-        'riskbitmask' => RISK_XSS,
-        'captype'              => 'write',
-        'contextlevel'         => CONTEXT_COURSE,
-        'archetypes'           => array(
-            'editingteacher' => CAP_ALLOW,
-            'manager'        => CAP_ALLOW
+        'mod/ciscospark:view'            => array(
+                'captype'      => 'read',
+                'contextlevel' => CONTEXT_MODULE,
+                'archetypes'   => array(
+                        'guest' => CAP_ALLOW,
+                        'user'  => CAP_ALLOW,
+                )
         ),
-        'clonepermissionsfrom' => 'moodle/course:manageactivities'
-    ),
-    'mod/ciscospark:viewhiddenrooms' => array(
-        'riskbitmask' => RISK_XSS,
-        'captype'              => 'write',
-        'contextlevel'         => CONTEXT_COURSE,
-        'archetypes'           => array(
-            'editingteacher' => CAP_ALLOW,
-            'manager'        => CAP_ALLOW
+        'mod/ciscospark:addinstance'     => array(
+                'riskbitmask'          => RISK_XSS,
+                'captype'              => 'write',
+                'contextlevel'         => CONTEXT_COURSE,
+                'archetypes'           => array(
+                        'editingteacher' => CAP_ALLOW,
+                        'manager'        => CAP_ALLOW
+                ),
+                'clonepermissionsfrom' => 'moodle/course:manageactivities'
         ),
-        'clonepermissionsfrom' => 'moodle/course:manageactivities'
-    ),
-    'mod/ciscospark:hiderooms' => array(
-        'riskbitmask' => RISK_XSS,
-        'captype'              => 'write',
-        'contextlevel'         => CONTEXT_COURSE,
-        'archetypes'           => array(
-            'editingteacher' => CAP_ALLOW,
-            'manager'        => CAP_ALLOW
+        'mod/ciscospark:viewhiddenrooms' => array(
+                'riskbitmask'          => RISK_XSS,
+                'captype'              => 'write',
+                'contextlevel'         => CONTEXT_COURSE,
+                'archetypes'           => array(
+                        'editingteacher' => CAP_ALLOW,
+                        'manager'        => CAP_ALLOW
+                ),
+                'clonepermissionsfrom' => 'moodle/course:manageactivities'
         ),
-        'clonepermissionsfrom' => 'moodle/course:manageactivities'
-    ),
+        'mod/ciscospark:hiderooms'       => array(
+                'riskbitmask'          => RISK_XSS,
+                'captype'              => 'write',
+                'contextlevel'         => CONTEXT_COURSE,
+                'archetypes'           => array(
+                        'editingteacher' => CAP_ALLOW,
+                        'manager'        => CAP_ALLOW
+                ),
+                'clonepermissionsfrom' => 'moodle/course:manageactivities'
+        ),
 );

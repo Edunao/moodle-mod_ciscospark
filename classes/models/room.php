@@ -44,7 +44,8 @@ class room {
 
     /**
      * Class constructor
-     * @param stdClass $dbroom from ciscospark_rooms table
+     *
+     * @param \stdClass $dbroom from ciscospark_rooms table
      */
     public function __construct($dbroom) {
         foreach ($dbroom as $key => $value) {
@@ -54,7 +55,6 @@ class room {
 
     /**
      * Update room visibility
-     * @global \mod_ciscospark\type $DB
      */
     public function change_visibility() {
         global $DB;
@@ -63,14 +63,14 @@ class room {
 
         if ($this->visible == 0) {
             $this->remove_all_students();
-        }
-        else {
+        } else {
             $this->add_all_students();
         }
     }
 
     /**
      * remove all students from the room
+     *
      * @return boolean
      */
     public function remove_all_students() {
@@ -86,6 +86,7 @@ class room {
 
     /**
      * Add all students to the room
+     *
      * @return boolean
      */
     public function add_all_students() {
@@ -101,7 +102,7 @@ class room {
 
     /**
      * Get a room by id
-     * @global \mod_ciscospark\type $DB
+     *
      * @param int $id
      * @return boolean|\mod_ciscospark\room
      */
@@ -115,8 +116,8 @@ class room {
 
     /**
      * Get a room by spark room id
-     * @global \mod_ciscospark\type $DB
-     * @param type $roomid
+     *
+     * @param string $roomid
      * @return boolean|\mod_ciscospark\room
      */
     public static function get_by_roomid($roomid) {
@@ -129,11 +130,11 @@ class room {
 
     /**
      * Create a room
-     * @global type $DB
+     *
      * @param int $ciscosparkid
      * @param int $groupid
      * @param int $teamid - optional default 0 for no team
-     * @return \mod_ciscospark\room created room
+     * @return bool|room
      */
     public static function create_room($ciscosparkid, $groupid, $teamid = 0) {
         global $DB, $CFG;
@@ -148,13 +149,6 @@ class room {
             print_error('CM not found');
         }
 
-        $dbroom               = new \stdClass();
-        $dbroom->ciscosparkid = $ciscosparkid;
-        $dbroom->visible      = 1; //room visible by default
-        $dbroom->groupid      = $groupid;
-        $dbroom->timemodified = time();
-        $dbroom->teamid       = $teamid;
-
         $room_infos               = new \stdClass;
         $room_infos->ciscosparkid = $ciscosparkid;
         $room_infos->groupid      = $groupid;
@@ -162,19 +156,26 @@ class room {
 
         $room_infos->title = '';
 
-        $course = get_course($cm->course);
+        $course            = get_course($cm->course);
         $room_infos->title .= $course->shortname . '_';
 
-        $ciscospark = $DB->get_record('ciscospark', array('id' => $ciscosparkid));
+        $ciscospark        = $DB->get_record('ciscospark', array('id' => $ciscosparkid));
         $room_infos->title .= $ciscospark->name;
 
         if ($groupid != 0) {
-            $group = $DB->get_record('groups', array('id' => $groupid));
+            $group             = $DB->get_record('groups', array('id' => $groupid));
             $room_infos->title .= '_' . $group->name;
         }
 
         $room_infos->cmid = $cm->id;
 
+        // create the new room in database
+        $dbroom               = new \stdClass();
+        $dbroom->ciscosparkid = $ciscosparkid;
+        $dbroom->visible      = 1; //room visible by default
+        $dbroom->groupid      = $groupid;
+        $dbroom->timemodified = time();
+        $dbroom->teamid       = $teamid;
         $dbroom->id = $DB->insert_record('ciscospark_rooms', $dbroom);
 
         $room_infos->dbroomid = $dbroom->id;
@@ -185,7 +186,7 @@ class room {
         if (!$room = spark_controller::create_spark_room($room_infos, $users)) {
             print_error('Cannot create spark room');
         }
-        
+
         if (empty($room->id)) {
             $DB->delete_records('ciscospark_rooms', array('id' => $dbroom->id));
             print_object('Cannot create spark room, room id is empty');
@@ -197,14 +198,11 @@ class room {
 
         $newroom = new room($dbroom);
 
-        //$newroom->create_webhooks();
-
         return $newroom;
     }
 
     /**
      * Check that membership ids stored in database correspond to the spark membership ids
-     * @global \mod_ciscospark\type $DB
      */
     public function check_memberships_ids() {
         global $DB;
@@ -221,11 +219,11 @@ class room {
         foreach ($spark_memberships as $spark_membership) {
             if (!$room_membership = $DB->get_record('ciscospark_rooms_members', array('membershipid' => $spark_membership->id))) {
                 if ($user = $DB->get_record('user', array('email' => $spark_membership->personEmail))) {
-                    if ($room_membership = $DB->get_record('ciscospark_rooms_members', array('roomid' => $this->id, 'userid' => $user->id))) {
+                    if ($room_membership = $DB->get_record('ciscospark_rooms_members',
+                            array('roomid' => $this->id, 'userid' => $user->id))) {
                         $room_membership->membershipid = $spark_membership->id;
                         $DB->update_record('ciscospark_rooms_members', $room_membership);
-                    }
-                    else {
+                    } else {
                         $room_membership               = new \stdClass;
                         $room_membership->roomid       = $this->id;
                         $room_membership->userid       = $user->id;
@@ -239,63 +237,20 @@ class room {
     }
 
     /**
-     * Create webhook on the room
-     * @global type $CFG
-     * @return boolean
-     */
-    public function create_webhooks() {
-        global $CFG;
-
-        $target_url = $CFG->wwwroot . '/mod/ciscospark/webhook.php';
-
-        $secret = '123456';
-
-        //SOMEONE JOIN THE ROOM
-        $joinroom_hook            = new \stdClass;
-        $joinroom_hook->name      = 'joinroom';
-        $joinroom_hook->targetUrl = $target_url;
-        $joinroom_hook->resource  = 'memberships';
-        $joinroom_hook->event     = 'created';
-        $joinroom_hook->filter    = 'roomId=' . $this->roomid;
-        $joinroom_hook->secret    = $secret;
-        $joinroom_hook->roomid    = $this->id;
-
-
-        $webhooks = array(
-            $joinroom_hook
-        );
-
-        foreach ($webhooks as $webhook) {
-            webhook::create_webhook($webhook);
-        }
-        return true;
-    }
-
-    /**
-     * Get room webhooks
-     * @global \mod_ciscospark\type $DB
-     * @return \mod_ciscospark\webhook
-     */
-    public function get_webhooks() {
-        global $DB;
-        $webhooks    = array();
-        $db_webhooks = $DB->get_records('ciscospark_webhooks', array('roomid' => $this->id));
-        foreach ($db_webhooks as $db_webhook) {
-            $webhooks[$db_webhook->id] = new webhook($db_webhook);
-        }
-        return $webhooks;
-    }
-
-    /**
      * Delete the room
-     * @global \mod_ciscospark\type $DB
+     *
      * @return boolean
      */
     public function delete() {
         global $DB;
+
+        // delete room members
         $DB->delete_records('ciscospark_rooms_members', array('roomid' => $this->id));
+
+        // delete the room
         $DB->delete_records('ciscospark_rooms', array('id' => $this->id));
 
+        // delete the spark room
         $bot_token = ciscospark_get_bot_access_token();
         if (empty($bot_token)) {
             print_error('Bot token not found');
@@ -304,21 +259,17 @@ class room {
         $cm        = get_coursemodule_from_instance('ciscospark', $this->ciscosparkid);
         $spark_api = new spark($cm->id, $bot_token);
 
-        /*$webhooks = $this->get_webhooks();
-        foreach ($webhooks as $webhook) {
-            $webhook->delete();
-        }*/
         $spark_api->delete_room($this->roomid);
+
         return true;
     }
 
     /**
-     * 
-     * @global \mod_ciscospark\type $DB
-     * @param stdClass $user
+     * Add a member to the room
+     *
+     * @param \stdClass $user
      * @param string $membershipid
-     * @param type $groupid
-     * @return int ciscospark_rooms_members id
+     * @return mixed
      */
     public function add_member($user, $membershipid = null) {
         global $DB;
@@ -357,7 +308,7 @@ class room {
 
     /**
      * Get room members
-     * @global \mod_ciscospark\type $DB
+     *
      * @return array users
      */
     public function get_members() {
@@ -377,7 +328,7 @@ class room {
 
     /**
      * Remove a room member
-     * @global \mod_ciscospark\type $DB
+     *
      * @param int $userid
      * @param string $message - optional default null
      * @return boolean
@@ -394,7 +345,7 @@ class room {
         if (!$user = $DB->get_record('user', array('id' => $userid))) {
             return false;
         }
-        
+
         //delete room member in database
         $DB->delete_records('ciscospark_rooms_members', array('roomid' => $this->id, 'userid' => $userid));
 
@@ -407,7 +358,7 @@ class room {
 
     /**
      * Remove a user from the room
-     * @global \mod_ciscospark\type $DB
+     *
      * @param string $membershipid
      * @param int $userid
      * @param string $message - optional default null
@@ -421,6 +372,7 @@ class room {
 
         $spark_api->remove_user_from_room($membershipid);
 
+        // send a message to the removed user
         if ($message) {
             $user = $DB->get_record('user', array('id' => $userid));
             $spark_api->send_message($user->email, $message);
@@ -429,7 +381,8 @@ class room {
     }
 
     /**
-     * Check if user can join the room
+     * Check if user can join the room, remove the membership if necessary
+     *
      * @param int $userid
      * @param string $membershipid
      */
@@ -445,41 +398,41 @@ class room {
             }
         }
     }
-    
+
     /**
      * Update room title
+     *
      * @param string $title
+     * @return string errors
      */
     public function update_title($title = null) {
         if (empty($title)) {
             global $DB;
-            
+
             if (!$cm = get_coursemodule_from_instance('ciscospark', $this->ciscosparkid)) {
                 print_error('CM not found');
             }
-            
-            $title = '';
 
             $course = get_course($cm->course);
-            $title .= $course->shortname . '_';
+            $title  = $course->shortname . '_';
 
             $ciscospark = $DB->get_record('ciscospark', array('id' => $this->ciscosparkid));
-            $title .= $ciscospark->name;
+            $title      .= $ciscospark->name;
 
             if ($this->groupid != 0) {
                 $group = $DB->get_record('groups', array('id' => $this->groupid));
                 $title .= '_' . $group->name;
             }
         }
-        
+
         $bot_token = ciscospark_get_bot_access_token();
         if (empty($bot_token)) {
             print_error('Bot token not found');
         }
-        
+
         $spark_api = new spark(null, $bot_token);
-        $errors = $spark_api->update_room($this->roomid, $title);
-        
+        $errors    = $spark_api->update_room($this->roomid, $title);
+
         return $errors;
     }
 

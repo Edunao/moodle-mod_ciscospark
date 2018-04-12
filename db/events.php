@@ -29,17 +29,17 @@ defined('MOODLE_INTERNAL') || die();
 
 $observers = array(
 
-    array(
-        'eventname' => '\core\event\course_module_updated',
-        'callback'  => 'mod_ciscospark_observer::course_module_updated',
-    ),
-    array(
-        'eventname' => '\core\event\course_updated',
-        'callback'  => 'mod_ciscospark_observer::course_updated',
-    ),
-    array(
-        'eventname' => '\core\event\group_updated',
-        'callback'  => 'mod_ciscospark_observer::group_updated',
-    )
-    
+        array(
+                'eventname' => '\core\event\course_module_updated',
+                'callback'  => 'mod_ciscospark_observer::course_module_updated',
+        ),
+        array(
+                'eventname' => '\core\event\course_updated',
+                'callback'  => 'mod_ciscospark_observer::course_updated',
+        ),
+        array(
+                'eventname' => '\core\event\group_updated',
+                'callback'  => 'mod_ciscospark_observer::group_updated',
+        )
+
 );

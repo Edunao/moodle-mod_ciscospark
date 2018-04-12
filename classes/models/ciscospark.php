@@ -27,6 +27,11 @@
 
 namespace mod_ciscospark;
 
+/**
+ * Class ciscospark
+ *
+ * @package mod_ciscospark
+ */
 class ciscospark {
     var $id;
     var $course;
@@ -35,20 +40,21 @@ class ciscospark {
     var $introformat;
     var $timemodified;
     var $usegroups;
-    
+
     var $visible;
-    
+
     var $rooms = null;
 
     /**
      * Ciscospark constructor
-     * @param stdClass $dbciscospark
+     *
+     * @param \stdClass $dbciscospark
      */
     public function __construct($dbciscospark) {
         foreach ($dbciscospark as $key => $value) {
             $this->{$key} = $value;
         }
-        
+
         if ($cm = get_coursemodule_from_instance('ciscospark', $this->id)) {
             $this->visible = $cm->visible;
         }
@@ -56,6 +62,7 @@ class ciscospark {
 
     /**
      * Get module instance by id
+     *
      * @param int $id
      * @return \mod_ciscospark\ciscospark|boolean
      */
@@ -69,66 +76,69 @@ class ciscospark {
 
     /**
      * Called by module add_instance function
-     * @param stdClass $data
+     *
+     * @param \stdClass $data
      * @return \mod_ciscospark\ciscospark
      */
     public static function create_ciscospark($data) {
         global $DB;
-        
+
         $data->timemodified = time();
-        
+
         $data->id = $DB->insert_record('ciscospark', $data);
-        
+
         return new ciscospark($data);
     }
-    
+
     /**
      * Get all rooms
+     *
      * @return room[]
      */
     public function get_rooms() {
         global $DB;
-        
+
         if (is_array($this->rooms)) {
             return $this->rooms;
         }
-        
+
         $this->rooms = array();
-        $dbrooms = $DB->get_records('ciscospark_rooms', array('ciscosparkid' => $this->id));
+        $dbrooms     = $DB->get_records('ciscospark_rooms', array('ciscosparkid' => $this->id));
         foreach ($dbrooms as $dbroom) {
             $this->rooms[$dbroom->groupid] = new room($dbroom);
         }
         return $this->rooms;
     }
-    
+
     /**
      * Update team rooms names
      */
     public function update_rooms_names() {
         $rooms = $this->get_rooms();
-        
+
         foreach ($rooms as $room) {
             $room->update_title();
         }
     }
-    
+
     /**
      * Get a specific room for a given group (0 if no group)
+     *
      * @param int $groupid
      * @return boolean|\mod_ciscospark\room
      */
     public function get_room($groupid) {
         $rooms = $this->get_rooms();
-        
+
         if (!isset($rooms[$groupid])) {
             return false;
         }
         return new room($rooms[$groupid]);
     }
-    
+
     /**
      * Delete instance of ciscospark
-     * @global \mod_ciscospark\type $DB
+     *
      * @return bool true if the deletion is completed
      */
     public function delete() {
@@ -138,20 +148,22 @@ class ciscospark {
         foreach ($rooms as $room) {
             $room->delete();
         }
-        $DB->delete_records('ciscospark', array('id'=>$this->id));
+        $DB->delete_records('ciscospark', array('id' => $this->id));
         return true;
     }
-    
+
     /**
      * Get the cisco spark course team
+     *
      * @return team
      */
     public function get_team() {
         return team::get_by_course($this->course);
     }
-    
+
     /**
      * Remove students of all rooms
+     *
      * @return boolean
      */
     public function remove_all_students() {

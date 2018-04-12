@@ -101,22 +101,6 @@
                 <INDEX NAME="user" UNIQUE="false" FIELDS="userid"/>
             </INDEXES>
         </TABLE>
-        <TABLE NAME="ciscospark_webhooks" COMMENT="Each record is one spark webhook">
-            <FIELDS>
-                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="targeturl" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="resource" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="event" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="filter" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="secret" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-                <FIELD NAME="roomid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="webhookid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-            </FIELDS>
-            <KEYS>
-                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            </KEYS>
-        </TABLE>
-        
+
     </TABLES>
 </XMLDB>

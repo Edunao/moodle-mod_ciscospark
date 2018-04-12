@@ -37,9 +37,9 @@ class spark {
     var $access_token;
     var $cmid;
 
+    var $token = null;
+
     /**
-     * 
-     * @global \mod_ciscospark\type $CFG
      * @param int $cmid
      * @param string $access_token optional - default null if you want to use current user's token
      */
@@ -47,11 +47,11 @@ class spark {
         global $CFG;
         $this->cmid         = $cmid;
         $this->redirect_uri = $CFG->wwwroot . '/mod/ciscospark/auth.php';
-        
-        $this->client_id = get_config('ciscospark', 'client_id');
+
+        $this->client_id     = get_config('ciscospark', 'client_id');
         $this->client_secret = get_config('ciscospark', 'client_secret');
-        
-        if (empty($this->client_id) || empty($this->client_secret)) {
+
+        if (!ciscospark_plugin_is_configured($this->client_id, $this->client_secret)) {
             print_error('Ciscospark settings not defined');
         }
         $this->access_token = $access_token ? $access_token : $this->get_user_token();
@@ -59,14 +59,12 @@ class spark {
 
     /**
      * Get token of current user
-     * @global type $USER
-     * @global type $DB
-     * @global type $CFG
+     *
      * @return string access_token
      */
     protected function get_user_token() {
         global $USER, $DB, $CFG;
-        
+
         if (!$user_token = $DB->get_record('ciscospark_users_tokens', array('userid' => $USER->id))) {
             require_once $CFG->dirroot . '/mod/ciscospark/lib/oauth/client.php';
 
@@ -87,7 +85,7 @@ class spark {
                 $response = $client->getAccessToken($this->token_endpoint, 'authorization_code', $params);
 
                 if ($response['code'] >= 300) {
-                    
+
                     print_object($response);
                     print_error('ERROR in spark authentification');
                 }
@@ -109,29 +107,30 @@ class spark {
 
     /**
      * Make a call to the Spark API
+     *
      * @param string $url
      * @param array $fields body parameters
      * @param string $custom_request GET|POST|PUT|DELETE defaut POST
-     * @return stdClass REST response as json
+     * @return \stdClass REST response as json
      */
     protected function api_call($url, $fields, $custom_request = 'POST') {
         $curl = curl_init();
-        
+
         $options = array(
-            CURLOPT_URL            => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING       => "",
-            CURLOPT_MAXREDIRS      => 10,
-            CURLOPT_TIMEOUT        => 30,
-            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST  => $custom_request,
-            CURLOPT_POSTFIELDS     => json_encode($fields),
-            CURLOPT_HTTPHEADER     => array(
-                "authorization: Bearer " . $this->access_token,
-                "content-type: application/json"
-            )
+                CURLOPT_URL            => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING       => "",
+                CURLOPT_MAXREDIRS      => 10,
+                CURLOPT_TIMEOUT        => 30,
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST  => $custom_request,
+                CURLOPT_POSTFIELDS     => json_encode($fields),
+                CURLOPT_HTTPHEADER     => array(
+                        "authorization: Bearer " . $this->access_token,
+                        "content-type: application/json"
+                )
         );
-        
+
         curl_setopt_array($curl, $options);
 
         $response = curl_exec($curl);
@@ -149,8 +148,9 @@ class spark {
 
     /**
      * Create a spark room and add the current user token as moderator
+     *
      * @param string $room_title
-     * @return stdClass room infos
+     * @return \stdClass room infos
      */
     public function create_room($room_title) {
         $url    = "https://api.ciscospark.com/v1/rooms";
@@ -160,8 +160,9 @@ class spark {
 
     /**
      * Create a team
+     *
      * @param string $team_name
-     * @return stdClass team infos
+     * @return \stdClass team infos
      */
     public function create_team($team_name) {
         $url    = "https://api.ciscospark.com/v1/teams";
@@ -171,11 +172,12 @@ class spark {
 
     /**
      * Create a room for a given team
+     *
      * @param string $team_id
      * @param string $room_title
-     * @return stdClass room details
+     * @return \stdClass room details
      */
-    public function create_team_room($team_id, $room_title) {        
+    public function create_team_room($team_id, $room_title) {
         $url    = "https://api.ciscospark.com/v1/rooms";
         $fields = array('title' => $room_title, 'teamId' => $team_id);
         return $this->api_call($url, $fields);
@@ -183,6 +185,7 @@ class spark {
 
     /**
      * Delete a room
+     *
      * @param string $room_id
      * @return string errors
      */
@@ -191,9 +194,10 @@ class spark {
         $custom_request = 'DELETE';
         return $this->api_call($url, array(), $custom_request);
     }
-    
+
     /**
      * Update a room name
+     *
      * @param string $room_id
      * @param string $room_title
      * @return string errors
@@ -207,6 +211,7 @@ class spark {
 
     /**
      * Delete a team
+     *
      * @param string $team_id
      * @return string errors
      */
@@ -215,9 +220,10 @@ class spark {
         $custom_request = 'DELETE';
         return $this->api_call($url, array(), $custom_request);
     }
-    
+
     /**
      * Update a team name
+     *
      * @param string $team_id
      * @param string $team_name
      * @return string errors
@@ -231,10 +237,11 @@ class spark {
 
     /**
      * Add a user to a team
+     *
      * @param string $user_email
      * @param string $team_id
      * @param bool $is_moderator optional - default false
-     * @return stdClass team membership details
+     * @return \stdClass team membership details
      */
     public function add_user_to_team($user_email, $team_id, $is_moderator = false) {
         $url    = "https://api.ciscospark.com/v1/team/memberships";
@@ -244,10 +251,11 @@ class spark {
 
     /**
      * Add a user to a room
+     *
      * @param string $user_email
      * @param string $room_id
      * @param bool $is_moderator optional - default false
-     * @return stdClass membership details
+     * @return \stdClass membership details
      */
     public function add_user_to_room($user_email, $room_id, $is_moderator = false) {
         $url    = "https://api.ciscospark.com/v1/memberships";
@@ -257,6 +265,7 @@ class spark {
 
     /**
      * Remove a user from a team
+     *
      * @param string $membership_id
      * @return string errors
      */
@@ -268,6 +277,7 @@ class spark {
 
     /**
      * Remove a user from a room
+     *
      * @param string $membership_id
      * @return string errors
      */
@@ -276,12 +286,13 @@ class spark {
         $custom_request = 'DELETE';
         return $this->api_call($url, array(), $custom_request);
     }
-    
+
     /**
      * Send a message to a user
+     *
      * @param string $user_email
      * @param string $message
-     * @return type
+     * @return string errors
      */
     public function send_message($user_email, $message) {
         $url    = "https://api.ciscospark.com/v1/messages";
@@ -291,8 +302,9 @@ class spark {
 
     /**
      * Add a bot into a room
+     *
      * @param string $room_id
-     * @return stdClass bot membership details
+     * @return \stdClass bot membership details
      */
     public function add_bot_to_room($room_id) {
         if (!$bot_email = ciscospark_get_bot_email()) {
@@ -303,6 +315,7 @@ class spark {
 
     /**
      * Update current token
+     *
      * @param string $token
      */
     public function set_token($token) {
@@ -311,9 +324,10 @@ class spark {
 
     /**
      * Define if a user is moderator in a room
+     *
      * @param string $membership_id
      * @param bool $is_moderator
-     * @return stdClass membership infos
+     * @return \stdClass membership infos
      */
     public function set_moderator_permission($membership_id, $is_moderator) {
         $url            = "https://api.ciscospark.com/v1/memberships/" . $membership_id;
@@ -321,12 +335,12 @@ class spark {
         $custom_request = "PUT";
         return $this->api_call($url, $fields, $custom_request);
     }
-    
+
     /**
-     * 
+     *
      * @param int $team_membership_id
      * @param int $is_moderator
-     * @return type
+     * @return string errors
      */
     public function set_team_moderator_permission($team_membership_id, $is_moderator) {
         $url            = "https://api.ciscospark.com/v1/team/memberships/" . $team_membership_id;
@@ -337,20 +351,22 @@ class spark {
 
     /**
      * Get user membership for a given room
+     *
      * @param string $room_id
      * @param string $user_email
-     * @return stdClass membership details
+     * @return \stdClass membership details
      */
     public function get_room_membership($room_id, $user_email) {
-        $url            = "https://api.ciscospark.com/v1/memberships?roomId=".$room_id."&personEmail=".$user_email;
+        $url            = "https://api.ciscospark.com/v1/memberships?roomId=" . $room_id . "&personEmail=" . $user_email;
         $fields         = array();
         $custom_request = 'GET';
-        $response = $this->api_call($url, $fields, $custom_request);
+        $response       = $this->api_call($url, $fields, $custom_request);
         return $response->items[0];
     }
-    
+
     /**
      * List memberships for a given rooms
+     *
      * @param string $room_id
      * @return array
      */
@@ -358,38 +374,41 @@ class spark {
         $url            = "https://api.ciscospark.com/v1/memberships";
         $fields         = array('roomId' => $room_id);
         $custom_request = 'GET';
-        $response = $this->api_call($url, $fields, $custom_request);
+        $response       = $this->api_call($url, $fields, $custom_request);
         return $response->items;
     }
-    
+
     /**
      * Get a team membership
+     *
      * @param string $team_id
      * @param string $user_email
-     * @return type
+     * @return \stdClass membership details
      */
     public function get_team_membership($team_id, $user_email) {
-        $url            = "https://api.ciscospark.com/v1/team/memberships?teamId=".$team_id."&personEmail=".$user_email;
+        $url            = "https://api.ciscospark.com/v1/team/memberships?teamId=" . $team_id . "&personEmail=" . $user_email;
         $fields         = array();
         $custom_request = 'GET';
-        $response = $this->api_call($url, $fields, $custom_request);
+        $response       = $this->api_call($url, $fields, $custom_request);
         return $response->items[0];
     }
-    
+
     /**
      * Create a webhook
+     *
      * @param array $fields
-     * @return type
+     * @return \stdClass webhook infos
      */
     public function create_webhook($fields) {
         $url = 'https://api.ciscospark.com/v1/webhooks/';
         return $this->api_call($url, $fields);
     }
-    
+
     /**
      * Delete a webhook
+     *
      * @param string $webhook_id
-     * @return type
+     * @return string errors
      */
     public function delete_webhook($webhook_id) {
         $url            = "https://api.ciscospark.com/v1/webhooks/" . $webhook_id;

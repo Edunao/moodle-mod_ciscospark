@@ -1,98 +1,97 @@
 #page-mod-ciscospark-view {
-    
-    @media (max-width : 480px) {
-        
-        #region-main-box {
-            padding : 5px !important;
-        }
-        .card-block {
-            padding : 5px !important;
-        }
+
+  @media (max-width: 480px) {
+
+    #region-main-box {
+      padding: 5px !important;
     }
-    
-    #ciscospark-rooms {
-        
-        text-align : center;
-        
-        @size : 420px;
-    
-        .room {
-            margin-bottom: 10px;
-            width: @size;
-            display: inline-block;
-            margin: 20px;
-            clear: none;
 
-            iframe {
-                border : none;
-                width : 100%;
-                height : @size;
-            }
-            
-            @media (max-width : 480px) {
-                clear : both;
-                margin-left : 0;
-                margin-right : 0;
-                width : 100%;
-                
-                iframe {
-                    width : 100%;
-                }
-            }
-
-            &.hidden-room {
-                &, a {
-                    color : #c3c3c3 !important;
-                }
-
-                .hide-button {
-                    background-image : url("[[pix:moodle|t/hide]]") !important;
-                }
-                
-                .enter-room-link {
-                    background-color : #c3c3c3 !important;
-                }
-            }
-            
-            .room-buttons {
-
-                position : relative;
-                
-                .room-actions {
-                    display : inline-block;
-                    text-align : right;
-                    margin-left : 20px;
-                    vertical-align : middle;
-                    position : absolute;
-                    right: 24px;
-                    top: 16px;
-                }
-
-                .hide-button {
-                    display : block;
-                    width : 18px;
-                    height : 18px;
-                    background-image : url("[[pix:moodle|t/show]]");
-                    background-repeat : no-repeat;
-                    background-size: cover;
-                    vertical-align : middle;
-                }
-
-                .enter-room-link {
-                    background-color : #07C1E4;
-                    display : block;
-                    width : 300px;
-                    margin : auto;
-                    padding : 5px 10px;
-                    text-align : center;
-                    border-radius : 4px;
-                    color : #FFF !important;
-                    line-height : 40px;
-                    font-size : 16px;
-                }
-            }
-
-        }
+    .card-block {
+      padding: 5px !important;
     }
-    
+  }
+
+  #ciscospark-rooms {
+
+    text-align: center;
+
+    @size: 420px;
+
+    .room {
+      width: @size;
+      display: inline-block;
+      margin: 20px;
+      clear: none;
+
+      iframe {
+        border: none;
+        width: 100%;
+        height: @size;
+      }
+
+      @media (max-width: 480px) {
+        clear: both;
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
+
+        iframe {
+          width: 100%;
+        }
+      }
+
+      &.hidden-room {
+        &, a {
+          color: #c3c3c3 !important;
+        }
+
+        .hide-button {
+          background-image: url("[[pix:moodle|t/hide]]") !important;
+        }
+
+        .enter-room-link {
+          background-color: #c3c3c3 !important;
+        }
+      }
+
+      .room-buttons {
+
+        position: relative;
+
+        .room-actions {
+          display: inline-block;
+          text-align: right;
+          margin-left: 20px;
+          vertical-align: middle;
+          position: absolute;
+          right: 24px;
+          top: 16px;
+        }
+
+        .hide-button {
+          display: block;
+          width: 18px;
+          height: 18px;
+          background: url("[[pix:moodle|t/show]]") no-repeat;
+          background-size: cover;
+          vertical-align: middle;
+        }
+
+        .enter-room-link {
+          background-color: #07C1E4;
+          display: block;
+          width: 300px;
+          margin: auto;
+          padding: 5px 10px;
+          text-align: center;
+          border-radius: 4px;
+          color: #FFF !important;
+          line-height: 40px;
+          font-size: 16px;
+        }
+      }
+
+    }
+  }
+
 }

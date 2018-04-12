@@ -29,32 +29,42 @@ defined('MOODLE_INTERNAL') || die;
 require_once $CFG->dirroot . '/mod/ciscospark/classes/models/spark.php';
 require_once $CFG->dirroot . '/mod/ciscospark/classes/models/team.php';
 require_once $CFG->dirroot . '/mod/ciscospark/classes/models/room.php';
-require_once $CFG->dirroot . '/mod/ciscospark/classes/models/webhook.php';
 require_once $CFG->dirroot . '/mod/ciscospark/classes/models/ciscospark.php';
 require_once $CFG->dirroot . '/mod/ciscospark/classes/controllers/spark_controller.php';
 
 /**
  * Check if the plugin supports a feature
+ *
  * @param string $feature
  * @return boolean
  */
 function ciscospark_supports($feature) {
     switch ($feature) {
-        case FEATURE_GROUPS: return false;
-        case FEATURE_GROUPINGS: return false;
-        case FEATURE_MOD_INTRO: return true;
-        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-        case FEATURE_GRADE_HAS_GRADE: return false;
-        case FEATURE_GRADE_OUTCOMES: return false;
-        case FEATURE_BACKUP_MOODLE2: return true;
-        case FEATURE_SHOW_DESCRIPTION: return true;
+        case FEATURE_GROUPS:
+            return false;
+        case FEATURE_GROUPINGS:
+            return false;
+        case FEATURE_MOD_INTRO:
+            return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
+        case FEATURE_GRADE_HAS_GRADE:
+            return false;
+        case FEATURE_GRADE_OUTCOMES:
+            return false;
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
+        case FEATURE_SHOW_DESCRIPTION:
+            return true;
 
-        default: return null;
+        default:
+            return null;
     }
 }
 
 /**
  * Trigger view event on the activity
+ *
  * @param stdClass $ciscospark
  * @param stdClass $course
  * @param stdClass $cm
@@ -64,8 +74,8 @@ function ciscospark_view($ciscospark, $course, $cm, $context) {
 
     // Trigger course_module_viewed event.
     $params = array(
-        'context'  => $context,
-        'objectid' => $ciscospark->id
+            'context'  => $context,
+            'objectid' => $ciscospark->id
     );
 
     $event = \mod_ciscospark\event\course_module_viewed::create($params);
@@ -81,6 +91,7 @@ function ciscospark_view($ciscospark, $course, $cm, $context) {
 
 /**
  * Add an instance of ciscospark
+ *
  * @param stdClass $data
  * @param mod_ciscospark_mod_form $mform
  * @return boolean
@@ -96,10 +107,9 @@ function ciscospark_add_instance($data, $mform) {
 
 /**
  * Update an instance of ciscospark
- * @global type $CFG
- * @global type $DB
+ *
  * @param stdClass $data
- * @param type $mform
+ * @param mod_ciscospark_mod_form $mform
  * @return boolean
  */
 function ciscospark_update_instance($data, $mform) {
@@ -113,7 +123,7 @@ function ciscospark_update_instance($data, $mform) {
 
 /**
  * Delete an instance of ciscospark and all associated rooms
- * @global type $DB
+ *
  * @param int $id
  * @return boolean
  */
@@ -129,10 +139,9 @@ function ciscospark_delete_instance($id) {
 
 /**
  * Get groups of a user
- * @global type $DB
- * @global type $USER
+ *
  * @param int $courseid
- * @param int $userid
+ * @param int $userid - optional default 0 for current user
  * @return stdClass[] groups from groups table
  */
 function ciscospark_get_user_groups($courseid, $userid = 0) {
@@ -142,23 +151,25 @@ function ciscospark_get_user_groups($courseid, $userid = 0) {
         $userid = $USER->id;
     }
 
-    $sql    = "SELECT g.*
+    $sql
+            = "SELECT g.*
         FROM 
             {groups} g,
             {groups_members} gm
         WHERE
-            gm.userid = ?
+            gm.userid = :userid
             AND
             gm.groupid = g.id
             AND
-            g.courseid = ?";
-    $params = array($userid, $courseid);
+            g.courseid = :courseid";
+    $params = array('userid' => $userid, 'courseid' => $courseid);
 
     return $DB->get_records_sql($sql, $params);
 }
 
 /**
  * Get bot access token from settings
+ *
  * @return string
  */
 function ciscospark_get_bot_access_token() {
@@ -167,6 +178,7 @@ function ciscospark_get_bot_access_token() {
 
 /**
  * Get bot email from settings
+ *
  * @return string
  */
 function ciscospark_get_bot_email() {
@@ -174,28 +186,29 @@ function ciscospark_get_bot_email() {
 }
 
 /**
- * 
+ * Get group users who can view a course module
  * @param int $cmid
  * @param int $groupid
  * @param bool $includeteacher - optional default true
  * @return stdClass[] users
  */
 function ciscospark_get_group_users($cmid, $groupid, $includeteacher = true) {
-    
+
     $context      = context_module::instance($cmid);
     $course_users = get_enrolled_users($context, '', $groupid);
-    
+
     $teachers = get_users_by_capability($context, 'mod/ciscospark:addinstance');
 
     if (!$includeteacher) {
         foreach ($teachers as $teacher) {
             unset($course_users[$teacher->id]);
-        } 
+        }
         $teachers = array();
     }
-    
+
     $all_users = $course_users + $teachers;
-    
+
+    // get users who can view the activity
     foreach ($all_users as $user) {
         $is_visible = \core_availability\info_module::is_user_visible($cmid, $user->id);
         if (!$is_visible || !is_enrolled($context, $user->id)) {
@@ -208,32 +221,38 @@ function ciscospark_get_group_users($cmid, $groupid, $includeteacher = true) {
 
 /**
  * Get all students for a given cmid
+ *
  * @param int $cmid
  * @return array
  */
 function ciscospark_get_students($cmid) {
     $context      = context_module::instance($cmid);
-    $course_users = get_enrolled_users($context, '', 0);
 
+    // get all users
+    $course_users = get_enrolled_users($context);
+
+    // remove teachers
     $teachers = ciscospark_get_teachers($cmid);
     foreach ($teachers as $teacher) {
         unset($course_users[$teacher->id]);
-    }  
+    }
+
     return $course_users;
 }
 
 /**
  * Get cm teachers
+ *
  * @param int $cmid
  * @return array
  */
 function ciscospark_get_teachers($cmid) {
-    $context      = context_module::instance($cmid);
+    $context = context_module::instance($cmid);
     return get_users_by_capability($context, 'mod/ciscospark:addinstance');
 }
 
 /**
- * Refresh all users tokens using refresh tokens- Called by cron
+ * Refresh all users tokens using refresh tokens- Called by the cron task.
  */
 function ciscospark_refresh_all_tokens() {
     global $DB, $CFG;
@@ -245,11 +264,12 @@ function ciscospark_refresh_all_tokens() {
     $client_id     = get_config('ciscospark', 'client_id');
     $client_secret = get_config('ciscospark', 'client_secret');
 
-    if (empty($client_id) || empty($client_secret)) {
+    if (!ciscospark_plugin_is_configured($client_id, $client_secret)) {
         mtrace('Spark client not configured');
         return;
     }
 
+    // get all existings users tokens
     $users_tokens = $DB->get_records('ciscospark_users_tokens');
 
     $errors = array();
@@ -257,11 +277,12 @@ function ciscospark_refresh_all_tokens() {
     $client = new \OAuth2\Client($client_id, $client_secret);
 
     $fields = array(
-        'grant_type'    => 'refresh_token',
-        'client_id'     => $client_id,
-        'client_secret' => $client_secret
+            'grant_type'    => 'refresh_token',
+            'client_id'     => $client_id,
+            'client_secret' => $client_secret
     );
 
+    // for each user token => refresh it using the refresh token
     foreach ($users_tokens as $user_token) {
 
         $fields['refresh_token'] = $user_token->refresh_token;
@@ -279,8 +300,29 @@ function ciscospark_refresh_all_tokens() {
             mtrace('Update user token for userid = ' . $user_token->userid);
         } else {
             $errors[] = 'Cannot refresh user token for userid = ' . $user_token->userid;
+            $DB->delete_records('ciscospark_users_tokens', array('id' => $user_token->id));
             mtrace('Cannot refresh user token for userid = ' . $user_token->userid);
         }
     }
     return $errors;
+}
+
+/**
+ * Check if the plugin is well configured
+ *
+ * @param string $clientid - optional default '' to get the parameter value from the config
+ * @param string $clientsecret - optional default '' to get the parameter value from the config
+ * @return bool
+ * @throws dml_exception
+ */
+function ciscospark_plugin_is_configured($clientid = '', $clientsecret = '') {
+    if (empty($clientid)) {
+        $clientid = get_config('ciscospark', 'client_id');
+    }
+
+    if (empty($clientsecret)) {
+        $clientsecret = get_config('ciscospark', 'client_secret');
+    }
+
+    return empty($clientid) || empty($clientsecret);
 }

@@ -24,7 +24,6 @@
  * @author     Adrien Jamot <adrien@edunao.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class restore_ciscospark_activity_structure_step extends restore_activity_structure_step {
 
     protected function define_structure() {
@@ -36,11 +35,17 @@ class restore_ciscospark_activity_structure_step extends restore_activity_struct
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * Create the cisco spark instance and synchronize all the rooms
+     * @param $data
+     * @throws base_step_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     protected function process_ciscospark($data) {
         global $DB;
 
         $data               = (object) $data;
-        $oldid              = $data->id;
         $data->course       = $this->get_courseid();
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
@@ -48,7 +53,7 @@ class restore_ciscospark_activity_structure_step extends restore_activity_struct
         $this->apply_activity_instance($newitemid);
 
         $cmid = $this->task->get_moduleid();
-        $cm = get_coursemodule_from_id('ciscospark', $cmid);
+        $cm   = get_coursemodule_from_id('ciscospark', $cmid);
         mod_ciscospark\spark_controller::syncRooms($cm);
     }
 

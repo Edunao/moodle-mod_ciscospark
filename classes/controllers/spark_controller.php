@@ -28,10 +28,20 @@
 
 namespace mod_ciscospark;
 
+/**
+ * Class spark_controller
+ *
+ * @package mod_ciscospark
+ */
 class spark_controller {
 
     /**
      * Create a spark room
+     *
+     * @param \stdClass $room_infos
+     * @param array $users
+     * @return bool|\stdClass
+     * @throws \moodle_exception
      */
     public static function create_spark_room($room_infos, $users = array()) {
         global $USER;
@@ -45,15 +55,14 @@ class spark_controller {
         //create spark room
         if ($room_infos->teamid == 0) {
             $created_room_infos = $spark_api->create_room($room_infos->title);
-        }
-        else {
+        } else {
             //create room team
             if (!$team = team::get_by_id($room_infos->teamid)) {
                 print_error('Team does not exist');
             }
             $created_room_infos = $spark_api->create_team_room($team->teamid, $room_infos->title);
         }
-        
+
         if (!is_object($created_room_infos)) {
             return false;
         }
@@ -83,8 +92,8 @@ class spark_controller {
 
     /**
      * Synchronize rooms and users for a given course module
-     * @global type $CFG
-     * @param stdClass $cm
+     *
+     * @param \stdClass $cm
      */
     public static function syncRooms($cm) {
         global $CFG;
@@ -105,7 +114,7 @@ class spark_controller {
             $team = team::create_team($cm);
         }
         $teamid = $team->id;
-        
+
         //add teachers to team
         $team->sync_teachers();
 
@@ -118,8 +127,7 @@ class spark_controller {
             $emptygroup          = new \stdClass;
             $emptygroup->groupid = 0;
             $course_groups[]     = $emptygroup;
-        }
-        else {
+        } else {
             $course_groups = groups_get_all_groups($cm->course);
         }
 
@@ -146,8 +154,7 @@ class spark_controller {
 
             if ($cm->visible == 0) {
                 $room->remove_all_students();
-            }
-            else {
+            } else {
                 //remove deleted users
                 foreach ($room_users as $room_userid => $room_user) {
                     if (!isset($user_availability[$room_userid])) {

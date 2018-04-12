@@ -36,7 +36,8 @@ class team {
 
     /**
      * Team constructor
-     * @param stdClass $dbteam
+     *
+     * @param \stdClass $dbteam
      */
     public function __construct($dbteam) {
         foreach ($dbteam as $key => $value) {
@@ -46,8 +47,8 @@ class team {
 
     /**
      * Get team rooms
-     * @global \mod_ciscospark\type $DB
-     * @return \mod_ciscospark\room
+     *
+     * @return \mod_ciscospark\room[]
      */
     public function get_rooms() {
         global $DB;
@@ -61,7 +62,7 @@ class team {
 
     /**
      * Get a team by id
-     * @global \mod_ciscospark\type $DB
+     *
      * @param int $id
      * @return boolean|\mod_ciscospark\team
      */
@@ -75,7 +76,7 @@ class team {
 
     /**
      * Get a course team
-     * @global \mod_ciscospark\type $DB
+     *
      * @param int $courseid
      * @return boolean|\mod_ciscospark\team
      */
@@ -88,41 +89,9 @@ class team {
     }
 
     /**
-     * 
-     * @global type $DB
-     * @param type $cm
-     * @return boolean|\mod_ciscospark\team
-     */
-    public static function create_team($cm) {
-        global $DB;
-
-        if ($team = self::get_by_course($cm->course)) {
-            return false;
-        }
-        $team               = new \stdClass;
-        $team->courseid     = $cm->course;
-        $team->timemodified = time();
-
-        //create spark team
-        $course       = get_course($cm->course);
-        $spark_api    = new spark($cm->id);
-        $created_team = $spark_api->create_team($course->fullname);
-        
-        //add bot to team
-        $bot_email = ciscospark_get_bot_email();
-        $bot_membership = $spark_api->add_user_to_team($bot_email, $created_team->id);
-        $spark_api->set_team_moderator_permission($bot_membership->id, true);
-
-        $team->teamid = $created_team->id;
-        $team->id     = $DB->insert_record('ciscospark_teams', $team);
-
-        return new team($team);
-    }
-
-    /**
      * Get team members
-     * @global \mod_ciscospark\type $DB
-     * @return stdClass[] users
+     *
+     * @return \stdClass[] users
      */
     public function get_members() {
         global $DB;
@@ -140,8 +109,8 @@ class team {
 
     /**
      * Add user to team
-     * @global \mod_ciscospark\type $DB
-     * @param stdClass $user
+     *
+     * @param \stdClass $user
      * @return boolean
      */
     public function add_member($user) {
@@ -149,14 +118,14 @@ class team {
         if ($member = $DB->get_record('ciscospark_teams_members', array('userid' => $user->id, 'teamid' => $this->id))) {
             return false;
         }
-        $member = new \stdClass();
+        $member         = new \stdClass();
         $member->teamid = $this->id;
         $member->userid = $user->id;
 
         $bot_token = ciscospark_get_bot_access_token();
-        
-        $spark_api  = new spark(null, $bot_token);
-        
+
+        $spark_api = new spark(null, $bot_token);
+
         if (!$membership = $spark_api->add_user_to_team($user->email, $this->teamid)) {
             print_error('Cannot add user ' . $user->email . ' to team : ' . $this->teamid);
         }
@@ -173,22 +142,22 @@ class team {
 
         return $DB->insert_record('ciscospark_teams_members', $member);
     }
-    
+
     /**
      * Sync teachers to team
      */
     public function sync_teachers() {
         $context  = \context_course::instance($this->courseid);
         $teachers = get_users_by_capability($context, 'mod/ciscospark:addinstance');
-        
+
         $members = $this->get_members();
-        
+
         foreach ($teachers as $teacher) {
             if (is_enrolled($context, $teacher)) {
                 $this->add_member($teacher);
             }
         }
-        
+
         foreach ($members as $member) {
             if (!is_enrolled($context, $member) || !array_key_exists($member->id, $teachers)) {
                 $this->remove_member($member);
@@ -198,8 +167,8 @@ class team {
 
     /**
      * Remove user from the team
-     * @global \mod_ciscospark\type $DB
-     * @param stdClass $user
+     *
+     * @param \stdClass $user
      * @return boolean
      */
     public function remove_member($user) {
@@ -214,9 +183,10 @@ class team {
         $DB->delete_records('ciscospark_teams_members', array('id' => $member->id));
         return true;
     }
-    
+
     /**
      * Update team name
+     *
      * @param string $name
      * @return string errors
      */
@@ -226,24 +196,59 @@ class team {
             $course = $DB->get_record('course', array('id' => $this->courseid));
             $name   = $course->fullname;
         }
-        
+
         $bot_token = ciscospark_get_bot_access_token();
         if (empty($bot_token)) {
             print_error('Bot token not found');
         }
-        
+
         $spark_api = new spark(null, $bot_token);
         return $spark_api->update_team($this->teamid, $name);
     }
-    
+
     /**
      * Update team rooms names
      */
     public function update_rooms_names() {
         $rooms = $this->get_rooms();
-        
+
         foreach ($rooms as $room) {
             $room->update_title();
         }
+    }
+
+
+    /**
+     * Create a new team
+     *
+     * @param \stdClass $cm
+     * @return boolean|\mod_ciscospark\team
+     */
+    public static function create_team($cm) {
+        global $DB;
+
+        if ($team = self::get_by_course($cm->course)) {
+            return false;
+        }
+        $team               = new \stdClass;
+        $team->courseid     = $cm->course;
+        $team->timemodified = time();
+
+        //create spark team
+        $course       = get_course($cm->course);
+        $spark_api    = new spark($cm->id);
+        $created_team = $spark_api->create_team($course->fullname);
+
+        //add bot to team
+        $bot_email      = ciscospark_get_bot_email();
+        $bot_membership = $spark_api->add_user_to_team($bot_email, $created_team->id);
+        $spark_api->set_team_moderator_permission($bot_membership->id, true);
+
+        $team->teamid = $created_team->id;
+
+        //create the team
+        $team->id     = $DB->insert_record('ciscospark_teams', $team);
+
+        return new team($team);
     }
 }

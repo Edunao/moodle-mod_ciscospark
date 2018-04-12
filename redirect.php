@@ -31,6 +31,8 @@ require_once $CFG->libdir . '/grouplib.php';
 $roomid  = required_param('roomid', PARAM_INT);
 $groupid = required_param('groupid', PARAM_INT);
 
+// check data integrity
+
 if (!$room = \mod_ciscospark\room::get_by_id($roomid)) {
     print_error('room not found');
 }
@@ -61,11 +63,12 @@ if (
         ($ciscospark->usegroups == 1) &&
         !$canviewhiddenrooms &&
         !groups_is_member($groupid)
-    ) {
+) {
     print_error('Invalid group');
 }
 //decode spark url
 $url = base64_decode($room->roomid);
 $url = str_replace('ciscospark://us/ROOM/', 'https://web.ciscospark.com/rooms/', $url);
 
+// go to spark
 redirect($url);
