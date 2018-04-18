@@ -324,5 +324,5 @@ function ciscospark_plugin_is_configured($clientid = '', $clientsecret = '') {
         $clientsecret = get_config('ciscospark', 'client_secret');
     }
 
-    return empty($clientid) || empty($clientsecret);
+    return (!empty($clientid) && !empty($clientsecret));
 }
