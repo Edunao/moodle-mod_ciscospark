@@ -1,1 +1,87 @@
-@media (max-width:480px){#page-mod-ciscospark-view #region-main-box{padding:5px !important}#page-mod-ciscospark-view .card-block{padding:5px !important}}#page-mod-ciscospark-view #ciscospark-rooms{text-align:center}#page-mod-ciscospark-view #ciscospark-rooms .room{margin-bottom:10px;width:420px;display:inline-block;margin:20px;clear:none}#page-mod-ciscospark-view #ciscospark-rooms .room iframe{border:none;width:100%;height:420px}@media (max-width:480px){#page-mod-ciscospark-view #ciscospark-rooms .room{clear:both;margin-left:0;margin-right:0;width:100%}#page-mod-ciscospark-view #ciscospark-rooms .room iframe{width:100%}}#page-mod-ciscospark-view #ciscospark-rooms .room.hidden-room,#page-mod-ciscospark-view #ciscospark-rooms .room.hidden-room a{color:#c3c3c3 !important}#page-mod-ciscospark-view #ciscospark-rooms .room.hidden-room .hide-button{background-image:url("[[pix:moodle|t/hide]]") !important}#page-mod-ciscospark-view #ciscospark-rooms .room.hidden-room .enter-room-link{background-color:#c3c3c3 !important}#page-mod-ciscospark-view #ciscospark-rooms .room .room-buttons{position:relative}#page-mod-ciscospark-view #ciscospark-rooms .room .room-buttons .room-actions{display:inline-block;text-align:right;margin-left:20px;vertical-align:middle;position:absolute;right:24px;top:16px}#page-mod-ciscospark-view #ciscospark-rooms .room .room-buttons .hide-button{display:block;width:18px;height:18px;background-image:url("[[pix:moodle|t/show]]");background-repeat:no-repeat;background-size:cover;vertical-align:middle}#page-mod-ciscospark-view #ciscospark-rooms .room .room-buttons .enter-room-link{background-color:#07c1e4;display:block;width:300px;margin:auto;padding:5px 10px;text-align:center;border-radius:4px;color:#fff !important;line-height:40px;font-size:16px}
+@media (max-width:480px) {
+    #page-mod-ciscospark-view #region-main-box {
+        padding: 5px !important
+    }
+    #page-mod-ciscospark-view .card-block {
+        padding: 5px !important
+    }
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms {
+    text-align: center
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms .room {
+    margin-bottom: 10px;
+    width: 640px;
+    display: inline-block;
+    margin: 20px;
+    clear: none
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms .room iframe {
+    border: none;
+    width: 100%;
+    height: 640px
+}
+
+@media (max-width:480px) {
+    #page-mod-ciscospark-view #ciscospark-rooms .room {
+        clear: both;
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
+    }
+    #page-mod-ciscospark-view #ciscospark-rooms .room iframe {
+        width: 100%
+    }
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms .room.hidden-room, #page-mod-ciscospark-view #ciscospark-rooms .room.hidden-room a {
+    color: #c3c3c3 !important
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms .room.hidden-room .hide-button {
+    background-image: url("[[pix:moodle|t/hide]]") !important
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms .room.hidden-room .enter-room-link {
+    background-color: #c3c3c3 !important
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms .room .room-buttons {
+    position: relative
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms .room .room-buttons .room-actions {
+    display: inline-block;
+    text-align: right;
+    margin-left: 20px;
+    vertical-align: middle;
+    position: absolute;
+    right: 24px;
+    top: 16px
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms .room .room-buttons .hide-button {
+    display: block;
+    width: 18px;
+    height: 18px;
+    background-image: url("[[pix:moodle|t/show]]");
+    background-repeat: no-repeat;
+    background-size: cover;
+    vertical-align: middle
+}
+
+#page-mod-ciscospark-view #ciscospark-rooms .room .room-buttons .enter-room-link {
+    background-color: #07c1e4;
+    display: block;
+    width: 300px;
+    margin: auto;
+    padding: 5px 10px;
+    text-align: center;
+    border-radius: 4px;
+    color: #fff !important;
+    line-height: 40px;
+    font-size: 16px
+}
